@@ -1,0 +1,863 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Canteen Admin (Sea Green)</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <style>
+      :root {
+        --sea-1: #0f766e;
+        --sea-2: #2dd4bf;
+        --sea-3: #9be7d1;
+        --muted: #f6fffb;
+        --card-bg: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.03),
+          rgba(255, 255, 255, 0.02)
+        );
+        --glass: rgba(255, 255, 255, 0.06);
+        --accent: #064e4a;
+        --text: #012a2a;
+        font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto,
+          "Helvetica Neue", Arial;
+      }
+      body {
+        margin: 0;
+        background: linear-gradient(180deg, #ecfffb, #f8fffd);
+        color: var(--text);
+        display: flex;
+        min-height: 100vh;
+        gap: 20px;
+      }
+      header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        background: var(--sea-3);
+        padding: 10px 20px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        z-index: 20;
+      }
+      header h1 {
+        margin: 0;
+        font-size: 20px;
+        color: var(--accent);
+      }
+
+      .sidebar {
+        width: 260px;
+        padding: 90px 16px 16px 16px;
+        box-sizing: border-box;
+        background: linear-gradient(
+          180deg,
+          rgba(15, 118, 110, 0.06),
+          rgba(45, 212, 191, 0.03)
+        );
+        border-right: 1px solid rgba(0, 0, 0, 0.03);
+      }
+      .content {
+        flex: 1;
+        padding: 90px 24px 24px 24px;
+        box-sizing: border-box;
+      }
+      .card {
+        background: white;
+        border-radius: 12px;
+        padding: 12px;
+        box-shadow: 0 6px 18px rgba(3, 22, 18, 0.03);
+        margin-bottom: 16px;
+      }
+      .nav {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .nav button {
+        background: transparent;
+        border: 1px solid rgba(5, 60, 56, 0.06);
+        padding: 10px;
+        border-radius: 8px;
+        text-align: left;
+        cursor: pointer;
+      }
+      .row {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      th,
+      td {
+        padding: 8px;
+        border-bottom: 1px solid #f1f6f5;
+        text-align: left;
+      }
+      form input,
+      form select {
+        padding: 8px;
+        border-radius: 6px;
+        border: 1px solid #dfeeea;
+        width: 100%;
+      }
+      .btn {
+        display: inline-block;
+        padding: 8px 12px;
+        border-radius: 8px;
+        background: var(--sea-1);
+        color: white;
+        border: none;
+        cursor: pointer;
+      }
+      .muted {
+        color: #476a66;
+        font-size: 13px;
+      }
+      .small {
+        font-size: 13px;
+      }
+      .flex-between {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .grid-3 {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+      }
+      .hidden {
+        display: none;
+      }
+      .danger {
+        background: #ffefef;
+        color: #9b2222;
+        border: 1px solid #f6caca;
+      }
+      footer {
+        padding: 12px;
+        text-align: center;
+        color: #064e4a;
+        font-size: 13px;
+      }
+      /* mobile */
+      @media (max-width: 800px) {
+        .sidebar {
+          display: none;
+        }
+        body {
+          padding-top: 72px;
+        }
+        .grid-3 {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="flex-between">
+        <h1>Sea Canteen — Admin</h1>
+        <div class="muted">
+          API: <span id="api-url">http://127.0.0.1:5000</span>
+        </div>
+      </div>
+    </header>
+
+    <aside class="sidebar card">
+      <div class="nav">
+        <button onclick="showSection('products')">Products</button>
+        <button onclick="showSection('categories')">Categories</button>
+        <button onclick="showSection('customers')">Customers</button>
+        <button onclick="showSection('orders')">Orders</button>
+        <button onclick="showSection('payments')">Payments</button>
+      </div>
+      <hr />
+      <div class="small muted">Quick actions</div>
+      <div style="margin-top: 8px">
+        <button class="btn" onclick="fetchProducts()">Refresh Products</button>
+      </div>
+    </aside>
+
+    <main class="content">
+      <!-- PRODUCTS -->
+      <section id="products" class="card">
+        <div class="flex-between">
+          <h2>Products</h2>
+          <div>
+            <button class="btn" onclick="openProductForm()">
+              + New Product
+            </button>
+          </div>
+        </div>
+        <div id="products-list" style="margin-top: 12px"></div>
+
+        <div id="product-form" class="card hidden" style="margin-top: 12px">
+          <h3 id="product-form-title">Add product</h3>
+          <form id="pf">
+            <div class="grid-3">
+              <div><label>Product ID</label><input name="product_id" /></div>
+              <div>
+                <label>Name</label><input name="product_name" required />
+              </div>
+              <div>
+                <label>Category</label
+                ><select name="category_id" id="product-category"></select>
+              </div>
+              <div>
+                <label>Price</label
+                ><input name="price" type="number" step="0.01" />
+              </div>
+              <div>
+                <label>Stock</label><input name="stock" type="number" />
+              </div>
+              <div><label>Description</label><input name="description" /></div>
+            </div>
+            <div style="margin-top: 8px" class="row">
+              <button class="btn" type="submit">Save</button>
+              <button type="button" onclick="closeProductForm()" class="danger">
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <!-- CATEGORIES -->
+      <section id="categories" class="card hidden">
+        <div class="flex-between">
+          <h2>Categories</h2>
+          <button class="btn" onclick="openCategoryForm()">
+            + New Category
+          </button>
+        </div>
+        <div id="categories-list" style="margin-top: 12px"></div>
+
+        <div id="category-form" class="card hidden" style="margin-top: 12px">
+          <h3>Add category</h3>
+          <form id="cf">
+            <div class="row">
+              <div style="flex: 1">
+                <label>ID</label>
+                <input name="category_id" />
+              </div>
+              <div style="flex: 2">
+                <label>Name</label>
+                <input name="category_name" required />
+              </div>
+            </div>
+            <div style="margin-top: 8px">
+              <label>Description</label>
+              <input name="description" />
+            </div>
+            <div style="margin-top: 8px" class="row">
+              <button class="btn" type="submit">Save</button>
+              <button
+                type="button"
+                onclick="closeCategoryForm()"
+                class="danger"
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <!-- CUSTOMERS -->
+      <section id="customers" class="card hidden">
+        <div class="flex-between">
+          <h2>Customers</h2>
+          <button class="btn" onclick="openCustomerForm()">
+            + New Customer
+          </button>
+        </div>
+        <div id="customers-list" style="margin-top: 12px"></div>
+
+        <div id="customer-form" class="card hidden" style="margin-top: 12px">
+          <h3>Add customer</h3>
+          <form id="custf">
+            <div class="grid-3">
+              <div><label>ID</label><input name="customer_id" /></div>
+              <div>
+                <label>First name</label><input name="first_name" required />
+              </div>
+              <div><label>Last name</label><input name="last_name" /></div>
+              <div><label>Email</label><input name="email" /></div>
+              <div><label>Phone</label><input name="phone" /></div>
+              <div><label>Address</label><input name="address" /></div>
+            </div>
+            <div style="margin-top: 8px" class="row">
+              <button class="btn" type="submit">Save</button>
+              <button
+                type="button"
+                onclick="closeCustomerForm()"
+                class="danger"
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <!-- ORDERS -->
+      <section id="orders" class="card hidden">
+        <div class="flex-between">
+          <h2>Orders</h2>
+          <button class="btn" onclick="openOrderForm()">+ New Order</button>
+        </div>
+        <div id="orders-list" style="margin-top: 12px"></div>
+
+        <div id="order-form" class="card hidden" style="margin-top: 12px">
+          <h3>Create order</h3>
+          <form id="of">
+            <div class="row">
+              <div style="flex: 1">
+                <label>Order ID</label><input name="order_id" />
+              </div>
+              <div style="flex: 2">
+                <label>Customer</label
+                ><select name="customer_id" id="order-customer"></select>
+              </div>
+              <div style="flex: 1">
+                <label>Status</label
+                ><select name="status">
+                  <option>Pending</option>
+                  <option>Completed</option>
+                </select>
+              </div>
+            </div>
+            <div style="margin-top: 8px">
+              <label>Items (select product then qty)</label>
+              <div id="order-items-area"></div>
+              <button type="button" class="btn" onclick="addOrderItemRow()">
+                Add item
+              </button>
+            </div>
+
+            <div style="margin-top: 8px" class="row">
+              <button class="btn" type="submit">Create</button>
+              <button type="button" onclick="closeOrderForm()" class="danger">
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <!-- PAYMENTS -->
+      <section id="payments" class="card hidden">
+        <div class="flex-between">
+          <h2>Payments</h2>
+          <button class="btn" onclick="openPaymentForm()">+ New Payment</button>
+        </div>
+        <div id="payments-list" style="margin-top: 12px"></div>
+
+        <div id="payment-form" class="card hidden" style="margin-top: 12px">
+          <h3>Add payment</h3>
+          <form id="payf">
+            <div class="row">
+              <div style="flex: 1">
+                <label>Payment ID</label><input name="payment_id" />
+              </div>
+              <div style="flex: 1">
+                <label>Order ID</label><input name="order_id" />
+              </div>
+              <div style="flex: 1">
+                <label>Amount</label
+                ><input name="amount" type="number" step="0.01" />
+              </div>
+              <div style="flex: 1">
+                <label>Method</label>
+                <select name="payment_method">
+                  <option>Cash</option>
+                  <option>Card</option>
+                  <option>UPI</option>
+                  <option>Cash on Delivery</option>
+                </select>
+              </div>
+            </div>
+            <div style="margin-top: 8px" class="row">
+              <button class="btn" type="submit">Save</button>
+              <button type="button" onclick="closePaymentForm()" class="danger">
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <footer>Sea Canteen • Minimal admin UI</footer>
+    </main>
+
+    <script>
+      const API = "/api";
+
+      // small util
+      function el(tag, attrs = {}, ...children) {
+        const e = document.createElement(tag);
+        for (const k in attrs) {
+          if (k.startsWith("on")) e.addEventListener(k.slice(2), attrs[k]);
+          else e.setAttribute(k, attrs[k]);
+        }
+        for (const c of children) {
+          if (typeof c === "string") e.appendChild(document.createTextNode(c));
+          else if (c) e.appendChild(c);
+        }
+        return e;
+      }
+
+      /* ---- navigation ---- */
+      function showSection(id) {
+        document
+          .querySelectorAll("main section")
+          .forEach((s) => s.classList.add("hidden"));
+        document.getElementById(id).classList.remove("hidden");
+        // load related data
+        if (id === "products") {
+          fetchProducts();
+          fetchCategoriesForSelect();
+        }
+        if (id === "categories") {
+          fetchCategories();
+        }
+        if (id === "customers") {
+          fetchCustomers();
+        }
+        if (id === "orders") {
+          fetchOrders();
+          fetchCustomersForSelect();
+          fetchProductsForOrder();
+        }
+        if (id === "payments") {
+          fetchPayments();
+          fetchOrders();
+        }
+      }
+      showSection("products");
+
+      /* ----- PRODUCTS ----- */
+      async function fetchProducts() {
+        const res = await fetch(API + "/products");
+        const data = await res.json();
+        const container = document.getElementById("products-list");
+        container.innerHTML = "";
+        if (data.length === 0) {
+          container.innerHTML = '<div class="muted">No products</div>';
+          return;
+        }
+        const table = el("table");
+        const thead = el("thead");
+        thead.innerHTML =
+          "<tr><th>ID</th><th>Name</th><th>Category</th><th>Price</th><th>Stock</th><th></th></tr>";
+        table.appendChild(thead);
+        const tbody = el("tbody");
+        data.forEach((p) => {
+          const tr = el("tr");
+          tr.innerHTML = `<td>${p.product_id || ""}</td><td>${
+            p.product_name
+          }</td><td>${p.category_name || ""}</td><td>${p.price || ""}</td><td>${
+            p.stock || ""
+          }</td>`;
+          const actions = el("td");
+          const edit = el(
+            "button",
+            { onclick: () => openProductForm(p) },
+            "Edit"
+          );
+          const del = el(
+            "button",
+            { onclick: () => deleteProduct(p.product_id) },
+            "Delete"
+          );
+          actions.appendChild(edit);
+          actions.appendChild(del);
+          tr.appendChild(actions);
+          tbody.appendChild(tr);
+        });
+        table.appendChild(tbody);
+        container.appendChild(table);
+      }
+
+      function openProductForm(p) {
+        document.getElementById("product-form").classList.remove("hidden");
+        document.getElementById("product-form-title").textContent = p
+          ? "Edit product"
+          : "Add product";
+        const f = document.getElementById("pf");
+        f.product_id.value = p ? p.product_id : "";
+        f.product_name.value = p ? p.product_name : "";
+        f.description.value = p ? p.description : "";
+        f.price.value = p ? p.price : "";
+        f.stock.value = p ? p.stock : "";
+        f.category_id.value = p ? p.category_id : "";
+      }
+      function closeProductForm() {
+        document.getElementById("pf").reset();
+        document.getElementById("product-form").classList.add("hidden");
+      }
+
+      document.getElementById("pf").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const data = Object.fromEntries(new FormData(e.target).entries());
+        // convert numeric fields
+        if (!data.product_name) return alert("product name required");
+        data.price = parseFloat(data.price || 0);
+        data.stock = parseInt(data.stock || 0);
+        if (data.product_id) {
+          const id = data.product_id;
+          await fetch(API + "/products/" + id, {
+            method: "PUT",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify(data),
+          });
+        } else {
+          // require an id for now - if you prefer auto-increment change DB schema accordingly
+          // still try to POST even if no id (backend accepts product_id null)
+          await fetch(API + "/products", {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify(data),
+          });
+        }
+        closeProductForm();
+        fetchProducts();
+      });
+
+      /* delete */
+      async function deleteProduct(id) {
+        if (!confirm("Delete product " + id + "?")) return;
+        await fetch(API + "/products/" + id, { method: "DELETE" });
+        fetchProducts();
+      }
+
+      /* categories select for product form */
+      async function fetchCategoriesForSelect() {
+        const res = await fetch(API + "/categories");
+        const cats = await res.json();
+        const sel = document.getElementById("product-category");
+        sel.innerHTML = '<option value="">-- none --</option>';
+        cats.forEach((c) => {
+          const o = el("option", { value: c.category_id }, c.category_name);
+          sel.appendChild(o);
+        });
+      }
+
+      /* ----- CATEGORIES ----- */
+      function openCategoryForm() {
+        document.getElementById("category-form").classList.remove("hidden");
+      }
+      function closeCategoryForm() {
+        document.getElementById("cf").reset();
+        document.getElementById("category-form").classList.add("hidden");
+      }
+
+      document.getElementById("cf").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const data = Object.fromEntries(new FormData(e.target).entries());
+        data.category_id = data.category_id || null;
+        await fetch(API + "/categories", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify(data),
+        });
+        closeCategoryForm();
+        fetchCategories();
+        fetchCategoriesForSelect();
+      });
+
+      async function fetchCategories() {
+        const res = await fetch(API + "/categories");
+        const data = await res.json();
+        const c = document.getElementById("categories-list");
+        c.innerHTML = "";
+        if (!data.length) {
+          c.innerHTML = '<div class="muted">No categories</div>';
+          return;
+        }
+        const table = el("table");
+        table.innerHTML =
+          "<thead><tr><th>ID</th><th>Name</th><th>Description</th><th></th></tr></thead>";
+        const tbody = el("tbody");
+        data.forEach((cat) => {
+          const tr = el("tr");
+          tr.innerHTML = `<td>${cat.category_id || ""}</td><td>${
+            cat.category_name
+          }</td><td>${cat.description || ""}</td>`;
+          const actions = el("td");
+          const del = el(
+            "button",
+            { onclick: () => deleteCategory(cat.category_id) },
+            "Delete"
+          );
+          actions.appendChild(del);
+          tr.appendChild(actions);
+          tbody.appendChild(tr);
+        });
+        table.appendChild(tbody);
+        c.appendChild(table);
+      }
+      async function deleteCategory(id) {
+        if (!confirm("Delete category " + id + "?")) return;
+        await fetch(API + "/categories/" + id, { method: "DELETE" });
+        fetchCategories();
+        fetchCategoriesForSelect();
+      }
+
+      /* ----- CUSTOMERS ----- */
+      function openCustomerForm() {
+        document.getElementById("customer-form").classList.remove("hidden");
+      }
+      function closeCustomerForm() {
+        document.getElementById("custf").reset();
+        document.getElementById("customer-form").classList.add("hidden");
+      }
+
+      document.getElementById("custf").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const data = Object.fromEntries(new FormData(e.target).entries());
+        await fetch(API + "/customers", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify(data),
+        });
+        closeCustomerForm();
+        fetchCustomers();
+      });
+
+      async function fetchCustomers() {
+        const res = await fetch(API + "/customers");
+        const data = await res.json();
+        const c = document.getElementById("customers-list");
+        c.innerHTML = "";
+        if (!data.length) {
+          c.innerHTML = '<div class="muted">No customers</div>';
+          return;
+        }
+        const table = el("table");
+        table.innerHTML =
+          "<thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Phone</th></tr></thead>";
+        const tbody = el("tbody");
+        data.forEach((u) => {
+          const tr = el("tr");
+          tr.innerHTML = `<td>${u.customer_id || ""}</td><td>${
+            u.first_name || ""
+          } ${u.last_name || ""}</td><td>${u.email || ""}</td><td>${
+            u.phone || ""
+          }</td>`;
+          tbody.appendChild(tr);
+        });
+        table.appendChild(tbody);
+        c.appendChild(table);
+      }
+
+      /* ----- ORDERS ----- */
+      function openOrderForm() {
+        document.getElementById("order-form").classList.remove("hidden");
+      }
+      function closeOrderForm() {
+        document.getElementById("of").reset();
+        document.getElementById("order-items-area").innerHTML = "";
+        document.getElementById("order-form").classList.add("hidden");
+      }
+
+      function addOrderItemRow() {
+        const area = document.getElementById("order-items-area");
+        const row = document.createElement("div");
+        row.className = "row";
+        row.style.marginTop = "6px";
+        const prodSelect = document.createElement("select");
+        prodSelect.name = "product_id";
+        prodSelect.style.flex = "2";
+        const qty = document.createElement("input");
+        qty.name = "quantity";
+        qty.type = "number";
+        qty.value = 1;
+        qty.style.flex = "1";
+        const price = document.createElement("input");
+        price.name = "price";
+        price.type = "number";
+        price.step = "0.01";
+        price.style.flex = "1";
+        const remove = document.createElement("button");
+        remove.type = "button";
+        remove.textContent = "Remove";
+        remove.addEventListener("click", () => row.remove());
+        row.appendChild(prodSelect);
+        row.appendChild(qty);
+        row.appendChild(price);
+        row.appendChild(remove);
+        area.appendChild(row);
+        // populate products
+        fetchProductsForOrder(prodSelect);
+      }
+
+      async function fetchProductsForOrder(selectEl) {
+        const res = await fetch(API + "/products");
+        const data = await res.json();
+        // if selectEl not passed, populate first existing selects
+        if (selectEl) {
+          selectEl.innerHTML = "";
+          data.forEach((p) => {
+            const o = document.createElement("option");
+            o.value = p.product_id;
+            o.textContent = `${p.product_name} (${p.price})`;
+            selectEl.appendChild(o);
+          });
+          return;
+        }
+        document.querySelectorAll("#order-items-area select").forEach((sel) => {
+          sel.innerHTML = "";
+          data.forEach((p) => {
+            const o = document.createElement("option");
+            o.value = p.product_id;
+            o.textContent = `${p.product_name} (${p.price})`;
+            sel.appendChild(o);
+          });
+        });
+      }
+
+      async function fetchCustomersForSelect() {
+        const res = await fetch(API + "/customers");
+        const data = await res.json();
+        const sel = document.getElementById("order-customer");
+        sel.innerHTML = "";
+        data.forEach((c) => {
+          const o = document.createElement("option");
+          o.value = c.customer_id;
+          o.textContent = `${c.first_name} ${c.last_name || ""} (${
+            c.customer_id || ""
+          })`;
+          sel.appendChild(o);
+        });
+      }
+
+      document.getElementById("of").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const fd = new FormData(e.target);
+        const obj = Object.fromEntries(fd.entries());
+        const order_id = obj.order_id || Math.floor(Date.now() / 1000);
+        const customer_id = obj.customer_id;
+        const status = obj.status || "Pending";
+        const items = [];
+        document.querySelectorAll("#order-items-area .row").forEach((r) => {
+          const select = r.querySelector("select");
+          const qty = r.querySelector('input[name="quantity"]');
+          const price = r.querySelector('input[name="price"]');
+          if (select && qty) {
+            items.push({
+              product_id: parseInt(select.value),
+              quantity: parseInt(qty.value || 1),
+              price: parseFloat(price.value || 0),
+            });
+          }
+        });
+        if (items.length === 0) return alert("Add at least one item");
+        const payload = {
+          order_id: parseInt(order_id),
+          customer_id: parseInt(customer_id),
+          status,
+          items,
+        };
+        const res = await fetch(API + "/orders", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        const resp = await res.json();
+        alert("Order created. Total: " + resp.total);
+        closeOrderForm();
+        fetchOrders();
+      });
+
+      async function fetchOrders() {
+        const res = await fetch(API + "/orders");
+        const data = await res.json();
+        const c = document.getElementById("orders-list");
+        c.innerHTML = "";
+        if (!data.length) {
+          c.innerHTML = '<div class="muted">No orders</div>';
+          return;
+        }
+        data.forEach((o) => {
+          const box = el("div", { class: "card" });
+          box.innerHTML = `<div class="flex-between"><strong>Order ${
+            o.order_id
+          }</strong><div class="muted">${o.order_date || ""} • ${
+            o.status
+          }</div></div>
+      <div class="small">Customer: ${
+        o.customer_name || o.customer_id || ""
+      } • Total: ${o.total || 0}</div>`;
+          const it = el("table");
+          it.innerHTML =
+            "<thead><tr><th>Product</th><th>Qty</th><th>Price</th></tr></thead>";
+          const tb = el("tbody");
+          (o.items || []).forEach((i) => {
+            const tr = el("tr");
+            tr.innerHTML = `<td>${i.product_name || i.product_id}</td><td>${
+              i.quantity
+            }</td><td>${i.price}</td>`;
+            tb.appendChild(tr);
+          });
+          it.appendChild(tb);
+          box.appendChild(it);
+          c.appendChild(box);
+        });
+      }
+
+      /* ----- PAYMENTS ----- */
+      function openPaymentForm() {
+        document.getElementById("payment-form").classList.remove("hidden");
+      }
+      function closePaymentForm() {
+        document.getElementById("payf").reset();
+        document.getElementById("payment-form").classList.add("hidden");
+      }
+
+      document.getElementById("payf").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const data = Object.fromEntries(new FormData(e.target).entries());
+        await fetch(API + "/payments", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify(data),
+        });
+        closePaymentForm();
+        fetchPayments();
+      });
+
+      async function fetchPayments() {
+        const res = await fetch(API + "/payments");
+        const data = await res.json();
+        const c = document.getElementById("payments-list");
+        c.innerHTML = "";
+        if (!data.length) {
+          c.innerHTML = '<div class="muted">No payments</div>';
+          return;
+        }
+        const table = el("table");
+        table.innerHTML =
+          "<thead><tr><th>ID</th><th>Order</th><th>Amount</th><th>Method</th><th>Status</th></tr></thead>";
+        const tb = el("tbody");
+        data.forEach((p) => {
+          const tr = el("tr");
+          tr.innerHTML = `<td>${p.payment_id || ""}</td><td>${
+            p.order_id || ""
+          }</td><td>${p.amount || ""}</td><td>${
+            p.payment_method || ""
+          }</td><td>${p.status || ""}</td>`;
+          tb.appendChild(tr);
+        });
+        table.appendChild(tb);
+        c.appendChild(table);
+      }
+    </script>
+  </body>
+</html>
