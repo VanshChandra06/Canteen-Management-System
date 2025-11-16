@@ -1,9 +1,8 @@
-<!-- index.html -->
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>Canteen Admin (Sea Green)</title>
+    <title>Sea Canteen — Admin / User</title>
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <style>
       :root {
@@ -11,56 +10,60 @@
         --sea-2: #2dd4bf;
         --sea-3: #9be7d1;
         --muted: #f6fffb;
-        --card-bg: linear-gradient(
-          180deg,
-          rgba(255, 255, 255, 0.03),
-          rgba(255, 255, 255, 0.02)
-        );
-        --glass: rgba(255, 255, 255, 0.06);
         --accent: #064e4a;
         --text: #012a2a;
         font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto,
           "Helvetica Neue", Arial;
       }
+      * {
+        box-sizing: border-box;
+      }
       body {
         margin: 0;
         background: linear-gradient(180deg, #ecfffb, #f8fffd);
         color: var(--text);
-        display: flex;
         min-height: 100vh;
-        gap: 20px;
+        display: flex;
+        flex-direction: column;
       }
       header {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
         background: var(--sea-3);
-        padding: 10px 20px;
+        padding: 12px 20px;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-        z-index: 20;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
       }
       header h1 {
         margin: 0;
-        font-size: 20px;
+        font-size: 18px;
         color: var(--accent);
       }
-
-      .sidebar {
-        width: 260px;
-        padding: 90px 16px 16px 16px;
-        box-sizing: border-box;
-        background: linear-gradient(
-          180deg,
-          rgba(15, 118, 110, 0.06),
-          rgba(45, 212, 191, 0.03)
-        );
-        border-right: 1px solid rgba(0, 0, 0, 0.03);
-      }
-      .content {
+      main {
+        display: flex;
         flex: 1;
-        padding: 90px 24px 24px 24px;
-        box-sizing: border-box;
+        gap: 20px;
+        padding: 20px;
+      }
+      .landing {
+        margin: auto;
+        text-align: center;
+        max-width: 800px;
+      }
+      .btn {
+        display: inline-block;
+        padding: 10px 14px;
+        border-radius: 8px;
+        background: var(--sea-1);
+        color: white;
+        border: none;
+        cursor: pointer;
+        margin: 6px;
+      }
+      .btn-ghost {
+        background: transparent;
+        border: 1px solid rgba(0, 0, 0, 0.06);
+        color: var(--accent);
       }
       .card {
         background: white;
@@ -69,24 +72,17 @@
         box-shadow: 0 6px 18px rgba(3, 22, 18, 0.03);
         margin-bottom: 16px;
       }
-      .nav {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
+      .sidebar {
+        width: 240px;
+        padding: 16px;
+        border-right: 1px solid rgba(0, 0, 0, 0.03);
       }
-      .nav button {
-        background: transparent;
-        border: 1px solid rgba(5, 60, 56, 0.06);
-        padding: 10px;
-        border-radius: 8px;
-        text-align: left;
-        cursor: pointer;
+      .content {
+        flex: 1;
+        padding: 8px;
       }
-      .row {
-        display: flex;
-        gap: 12px;
-        align-items: center;
-        flex-wrap: wrap;
+      .hidden {
+        display: none;
       }
       table {
         width: 100%;
@@ -98,6 +94,12 @@
         border-bottom: 1px solid #f1f6f5;
         text-align: left;
       }
+      .row {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
       form input,
       form select {
         padding: 8px;
@@ -105,14 +107,10 @@
         border: 1px solid #dfeeea;
         width: 100%;
       }
-      .btn {
-        display: inline-block;
-        padding: 8px 12px;
-        border-radius: 8px;
-        background: var(--sea-1);
-        color: white;
-        border: none;
-        cursor: pointer;
+      .grid-3 {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
       }
       .muted {
         color: #476a66;
@@ -121,23 +119,20 @@
       .small {
         font-size: 13px;
       }
-      .flex-between {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-      }
-      .grid-3 {
+      .product-grid {
         display: grid;
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
         gap: 12px;
       }
-      .hidden {
-        display: none;
+      .product-card {
+        border-radius: 10px;
+        padding: 12px;
+        background: linear-gradient(180deg, #fff, #f7fffb);
+        box-shadow: 0 4px 12px rgba(2, 20, 18, 0.03);
       }
-      .danger {
-        background: #ffefef;
-        color: #9b2222;
-        border: 1px solid #f6caca;
+      .price {
+        font-weight: 700;
+        color: var(--sea-1);
       }
       footer {
         padding: 12px;
@@ -145,13 +140,12 @@
         color: #064e4a;
         font-size: 13px;
       }
-      /* mobile */
-      @media (max-width: 800px) {
-        .sidebar {
-          display: none;
+      @media (max-width: 900px) {
+        main {
+          flex-direction: column;
         }
-        body {
-          padding-top: 72px;
+        .sidebar {
+          width: 100%;
         }
         .grid-3 {
           grid-template-columns: 1fr;
@@ -161,217 +155,410 @@
   </head>
   <body>
     <header>
-      <div class="flex-between">
-        <h1>Sea Canteen — Admin</h1>
-        <div class="muted">
-          API: <span id="api-url">http://127.0.0.1:5000</span>
-        </div>
-      </div>
+      <h1>Sea Canteen</h1>
+      <div class="muted">Single origin app — Admin & Store</div>
     </header>
 
-    <aside class="sidebar card">
-      <div class="nav">
-        <button onclick="showSection('products')">Products</button>
-        <button onclick="showSection('categories')">Categories</button>
-        <button onclick="showSection('customers')">Customers</button>
-        <button onclick="showSection('orders')">Orders</button>
-        <button onclick="showSection('payments')">Payments</button>
-      </div>
-      <hr />
-      <div class="small muted">Quick actions</div>
-      <div style="margin-top: 8px">
-        <button class="btn" onclick="fetchProducts()">Refresh Products</button>
-      </div>
-    </aside>
+    <main>
+      <!-- Landing -->
+      <section id="landing" class="card landing">
+        <h2>Welcome to Sea Canteen</h2>
+        <p class="muted">Choose a role to continue</p>
+        <div style="margin-top: 16px">
+          <button class="btn" onclick="enterRole('admin')">Admin</button>
+          <button class="btn btn-ghost" onclick="enterRole('user')">
+            User / Store
+          </button>
+        </div>
+        <hr />
+        <p class="small muted">
+          Tip: Admin view provides management features. User view is a simple
+          storefront where orders/payments can be created.
+        </p>
+      </section>
 
-    <main class="content">
-      <!-- PRODUCTS -->
-      <section id="products" class="card">
-        <div class="flex-between">
-          <h2>Products</h2>
+      <!-- Admin UI -->
+      <aside id="admin-ui" class="sidebar hidden card">
+        <div class="muted">Admin menu</div>
+        <div style="margin-top: 8px" class="row">
+          <button class="btn-ghost" onclick="showAdminSection('products')">
+            Products
+          </button>
+          <button class="btn-ghost" onclick="showAdminSection('categories')">
+            Categories
+          </button>
+        </div>
+        <div style="margin-top: 8px" class="row">
+          <button class="btn-ghost" onclick="showAdminSection('customers')">
+            Customers
+          </button>
+          <button class="btn-ghost" onclick="showAdminSection('orders')">
+            Orders
+          </button>
+        </div>
+        <div style="margin-top: 8px">
+          <button class="btn-ghost" onclick="showAdminSection('payments')">
+            Payments
+          </button>
+        </div>
+
+        <hr />
+        <div style="margin-top: 8px">
+          <button class="btn" onclick="enterRole('landing')">Back</button>
+        </div>
+      </aside>
+
+      <section id="admin-content" class="content hidden">
+        <!-- Products admin -->
+        <div id="admin-products" class="card hidden">
+          <div
+            class="row"
+            style="justify-content: space-between; align-items: center"
+          >
+            <h3>Products</h3>
+            <div>
+              <button class="btn" onclick="openProductForm()">
+                + New Product
+              </button>
+            </div>
+          </div>
+          <div id="products-list"></div>
+
+          <div id="product-form" class="card hidden" style="margin-top: 12px">
+            <h4 id="product-form-title">Add product</h4>
+            <form id="pf">
+              <div class="grid-3">
+                <div><label>Product ID</label><input name="product_id" /></div>
+                <div>
+                  <label>Name</label><input name="product_name" required />
+                </div>
+                <div>
+                  <label>Category</label
+                  ><select name="category_id" id="product-category"></select>
+                </div>
+                <div>
+                  <label>Price</label
+                  ><input name="price" type="number" step="0.01" />
+                </div>
+                <div>
+                  <label>Stock</label><input name="stock" type="number" />
+                </div>
+                <div>
+                  <label>Description</label><input name="description" />
+                </div>
+              </div>
+              <div style="margin-top: 8px" class="row">
+                <button class="btn" type="submit">Save</button>
+                <button
+                  type="button"
+                  onclick="closeProductForm()"
+                  class="btn-ghost"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Categories admin -->
+        <div id="admin-categories" class="card hidden">
+          <div
+            class="row"
+            style="justify-content: space-between; align-items: center"
+          >
+            <h3>Categories</h3>
+            <div>
+              <button class="btn" onclick="openCategoryForm()">
+                + New Category
+              </button>
+            </div>
+          </div>
+          <div id="categories-list" style="margin-top: 12px"></div>
+
+          <div id="category-form" class="card hidden" style="margin-top: 12px">
+            <h4>Add category</h4>
+            <form id="cf">
+              <div class="row">
+                <div style="flex: 1">
+                  <label>ID</label>
+                  <input name="category_id" />
+                </div>
+                <div style="flex: 2">
+                  <label>Name</label>
+                  <input name="category_name" required />
+                </div>
+              </div>
+              <div style="margin-top: 8px">
+                <label>Description</label>
+                <input name="description" />
+              </div>
+              <div style="margin-top: 8px" class="row">
+                <button class="btn" type="submit">Save</button>
+                <button
+                  type="button"
+                  onclick="closeCategoryForm()"
+                  class="btn-ghost"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Customers admin -->
+        <div id="admin-customers" class="card hidden">
+          <div
+            class="row"
+            style="justify-content: space-between; align-items: center"
+          >
+            <h3>Customers</h3>
+            <div>
+              <button class="btn" onclick="openCustomerForm()">
+                + New Customer
+              </button>
+            </div>
+          </div>
+          <div id="customers-list" style="margin-top: 12px"></div>
+
+          <div id="customer-form" class="card hidden" style="margin-top: 12px">
+            <h4>Add customer</h4>
+            <form id="custf">
+              <div class="grid-3">
+                <div><label>ID</label><input name="customer_id" /></div>
+                <div>
+                  <label>First name</label><input name="first_name" required />
+                </div>
+                <div><label>Last name</label><input name="last_name" /></div>
+                <div><label>Email</label><input name="email" /></div>
+                <div><label>Phone</label><input name="phone" /></div>
+                <div><label>Address</label><input name="address" /></div>
+              </div>
+              <div style="margin-top: 8px" class="row">
+                <button class="btn" type="submit">Save</button>
+                <button
+                  type="button"
+                  onclick="closeCustomerForm()"
+                  class="btn-ghost"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Orders admin -->
+        <div id="admin-orders" class="card hidden">
+          <div
+            class="row"
+            style="justify-content: space-between; align-items: center"
+          >
+            <h3>Orders</h3>
+            <div>
+              <button class="btn" onclick="openOrderForm()">+ New Order</button>
+            </div>
+          </div>
+          <div id="orders-list" style="margin-top: 12px"></div>
+
+          <div id="order-form" class="card hidden" style="margin-top: 12px">
+            <h4>Create order</h4>
+            <form id="of">
+              <div class="row">
+                <div style="flex: 1">
+                  <label>Order ID</label><input name="order_id" />
+                </div>
+                <div style="flex: 2">
+                  <label>Customer</label
+                  ><select name="customer_id" id="order-customer"></select>
+                </div>
+                <div style="flex: 1">
+                  <label>Status</label
+                  ><select name="status">
+                    <option>Pending</option>
+                    <option>Completed</option>
+                  </select>
+                </div>
+              </div>
+              <div style="margin-top: 8px">
+                <label>Items (select product then qty)</label>
+                <div id="order-items-area"></div>
+                <button type="button" class="btn" onclick="addOrderItemRow()">
+                  Add item
+                </button>
+              </div>
+
+              <div style="margin-top: 8px" class="row">
+                <button class="btn" type="submit">Create</button>
+                <button
+                  type="button"
+                  onclick="closeOrderForm()"
+                  class="btn-ghost"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Payments admin -->
+        <div id="admin-payments" class="card hidden">
+          <div
+            class="row"
+            style="justify-content: space-between; align-items: center"
+          >
+            <h3>Payments</h3>
+            <div>
+              <button class="btn" onclick="openPaymentForm()">
+                + New Payment
+              </button>
+            </div>
+          </div>
+          <div id="payments-list" style="margin-top: 12px"></div>
+
+          <div id="payment-form" class="card hidden" style="margin-top: 12px">
+            <h4>Add payment</h4>
+            <form id="payf">
+              <div class="row">
+                <div style="flex: 1">
+                  <label>Payment ID</label><input name="payment_id" />
+                </div>
+                <div style="flex: 1">
+                  <label>Order ID</label><input name="order_id" />
+                </div>
+                <div style="flex: 1">
+                  <label>Amount</label
+                  ><input name="amount" type="number" step="0.01" />
+                </div>
+                <div style="flex: 1">
+                  <label>Method</label>
+                  <select name="payment_method">
+                    <option>Cash</option>
+                    <option>Card</option>
+                    <option>UPI</option>
+                    <option>Cash on Delivery</option>
+                  </select>
+                </div>
+              </div>
+              <div style="margin-top: 8px" class="row">
+                <button class="btn" type="submit">Save</button>
+                <button
+                  type="button"
+                  onclick="closePaymentForm()"
+                  class="btn-ghost"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      <!-- User (Store) UI -->
+      <section id="user-ui" class="content hidden">
+        <div
+          class="row"
+          style="
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+          "
+        >
+          <h3>Store</h3>
           <div>
-            <button class="btn" onclick="openProductForm()">
-              + New Product
+            <button class="btn-ghost" onclick="enterRole('landing')">
+              Back
+            </button>
+            <button class="btn" onclick="openCart()">
+              Cart (<span id="cart-count">0</span>)
             </button>
           </div>
         </div>
-        <div id="products-list" style="margin-top: 12px"></div>
 
-        <div id="product-form" class="card hidden" style="margin-top: 12px">
-          <h3 id="product-form-title">Add product</h3>
-          <form id="pf">
-            <div class="grid-3">
-              <div><label>Product ID</label><input name="product_id" /></div>
-              <div>
-                <label>Name</label><input name="product_name" required />
-              </div>
-              <div>
-                <label>Category</label
-                ><select name="category_id" id="product-category"></select>
-              </div>
-              <div>
-                <label>Price</label
-                ><input name="price" type="number" step="0.01" />
-              </div>
-              <div>
-                <label>Stock</label><input name="stock" type="number" />
-              </div>
-              <div><label>Description</label><input name="description" /></div>
-            </div>
-            <div style="margin-top: 8px" class="row">
-              <button class="btn" type="submit">Save</button>
-              <button type="button" onclick="closeProductForm()" class="danger">
-                Cancel
-              </button>
-            </div>
-          </form>
+        <div class="card">
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+            "
+          >
+            <div><strong>Products</strong></div>
+            <div class="muted">Browse and add to cart</div>
+          </div>
+          <div
+            id="product-grid"
+            style="margin-top: 12px"
+            class="product-grid"
+          ></div>
         </div>
-      </section>
 
-      <!-- CATEGORIES -->
-      <section id="categories" class="card hidden">
-        <div class="flex-between">
-          <h2>Categories</h2>
-          <button class="btn" onclick="openCategoryForm()">
-            + New Category
-          </button>
+        <!-- Cart / Checkout -->
+        <div id="cart-modal" class="card hidden" style="margin-top: 12px">
+          <h4>Your Cart</h4>
+          <div id="cart-items"></div>
+          <div style="margin-top: 8px" class="row">
+            <div class="muted">Total: ₹ <span id="cart-total">0</span></div>
+            <div style="margin-left: auto">
+              <button class="btn" onclick="checkout()">Checkout</button>
+              <button class="btn-ghost" onclick="closeCart()">Close</button>
+            </div>
+          </div>
         </div>
-        <div id="categories-list" style="margin-top: 12px"></div>
 
-        <div id="category-form" class="card hidden" style="margin-top: 12px">
-          <h3>Add category</h3>
-          <form id="cf">
+        <!-- Simple checkout form -->
+        <div id="checkout-form" class="card hidden" style="margin-top: 12px">
+          <h4>Checkout</h4>
+          <form id="checkoutf">
             <div class="row">
               <div style="flex: 1">
-                <label>ID</label>
-                <input name="category_id" />
+                <label>Customer ID (or leave blank to create)</label
+                ><input name="customer_id" />
               </div>
               <div style="flex: 2">
-                <label>Name</label>
-                <input name="category_name" required />
-              </div>
-            </div>
-            <div style="margin-top: 8px">
-              <label>Description</label>
-              <input name="description" />
-            </div>
-            <div style="margin-top: 8px" class="row">
-              <button class="btn" type="submit">Save</button>
-              <button
-                type="button"
-                onclick="closeCategoryForm()"
-                class="danger"
-              >
-                Cancel
-              </button>
-            </div>
-          </form>
-        </div>
-      </section>
-
-      <!-- CUSTOMERS -->
-      <section id="customers" class="card hidden">
-        <div class="flex-between">
-          <h2>Customers</h2>
-          <button class="btn" onclick="openCustomerForm()">
-            + New Customer
-          </button>
-        </div>
-        <div id="customers-list" style="margin-top: 12px"></div>
-
-        <div id="customer-form" class="card hidden" style="margin-top: 12px">
-          <h3>Add customer</h3>
-          <form id="custf">
-            <div class="grid-3">
-              <div><label>ID</label><input name="customer_id" /></div>
-              <div>
                 <label>First name</label><input name="first_name" required />
               </div>
-              <div><label>Last name</label><input name="last_name" /></div>
-              <div><label>Email</label><input name="email" /></div>
-              <div><label>Phone</label><input name="phone" /></div>
-              <div><label>Address</label><input name="address" /></div>
+              <div style="flex: 2">
+                <label>Last name</label><input name="last_name" />
+              </div>
             </div>
             <div style="margin-top: 8px" class="row">
-              <button class="btn" type="submit">Save</button>
+              <div style="flex: 2">
+                <label>Email</label><input name="email" />
+              </div>
+              <div style="flex: 1">
+                <label>Phone</label><input name="phone" />
+              </div>
+            </div>
+
+            <div style="margin-top: 8px" class="row">
+              <button class="btn" type="submit">Place Order</button>
               <button
                 type="button"
-                onclick="closeCustomerForm()"
-                class="danger"
+                class="btn-ghost"
+                onclick="cancelCheckout()"
               >
                 Cancel
               </button>
             </div>
           </form>
         </div>
-      </section>
 
-      <!-- ORDERS -->
-      <section id="orders" class="card hidden">
-        <div class="flex-between">
-          <h2>Orders</h2>
-          <button class="btn" onclick="openOrderForm()">+ New Order</button>
-        </div>
-        <div id="orders-list" style="margin-top: 12px"></div>
-
-        <div id="order-form" class="card hidden" style="margin-top: 12px">
-          <h3>Create order</h3>
-          <form id="of">
-            <div class="row">
-              <div style="flex: 1">
-                <label>Order ID</label><input name="order_id" />
-              </div>
-              <div style="flex: 2">
-                <label>Customer</label
-                ><select name="customer_id" id="order-customer"></select>
-              </div>
-              <div style="flex: 1">
-                <label>Status</label
-                ><select name="status">
-                  <option>Pending</option>
-                  <option>Completed</option>
-                </select>
-              </div>
-            </div>
-            <div style="margin-top: 8px">
-              <label>Items (select product then qty)</label>
-              <div id="order-items-area"></div>
-              <button type="button" class="btn" onclick="addOrderItemRow()">
-                Add item
-              </button>
-            </div>
-
-            <div style="margin-top: 8px" class="row">
-              <button class="btn" type="submit">Create</button>
-              <button type="button" onclick="closeOrderForm()" class="danger">
-                Cancel
-              </button>
-            </div>
-          </form>
-        </div>
-      </section>
-
-      <!-- PAYMENTS -->
-      <section id="payments" class="card hidden">
-        <div class="flex-between">
-          <h2>Payments</h2>
-          <button class="btn" onclick="openPaymentForm()">+ New Payment</button>
-        </div>
-        <div id="payments-list" style="margin-top: 12px"></div>
-
-        <div id="payment-form" class="card hidden" style="margin-top: 12px">
-          <h3>Add payment</h3>
-          <form id="payf">
+        <!-- After order: payment -->
+        <div id="payment-ui" class="card hidden" style="margin-top: 12px">
+          <h4>Make Payment</h4>
+          <div class="muted">
+            Order ID: <span id="pay-order-id"></span> • Amount: ₹<span
+              id="pay-amount"
+            ></span>
+          </div>
+          <form id="payf-user" style="margin-top: 8px">
             <div class="row">
               <div style="flex: 1">
                 <label>Payment ID</label><input name="payment_id" />
-              </div>
-              <div style="flex: 1">
-                <label>Order ID</label><input name="order_id" />
-              </div>
-              <div style="flex: 1">
-                <label>Amount</label
-                ><input name="amount" type="number" step="0.01" />
               </div>
               <div style="flex: 1">
                 <label>Method</label>
@@ -379,31 +566,81 @@
                   <option>Cash</option>
                   <option>Card</option>
                   <option>UPI</option>
-                  <option>Cash on Delivery</option>
                 </select>
+              </div>
+              <div style="flex: 1">
+                <label>Amount</label
+                ><input name="amount" type="number" step="0.01" />
               </div>
             </div>
             <div style="margin-top: 8px" class="row">
-              <button class="btn" type="submit">Save</button>
-              <button type="button" onclick="closePaymentForm()" class="danger">
+              <button class="btn" type="submit">Pay</button>
+              <button type="button" class="btn-ghost" onclick="cancelPayment()">
                 Cancel
               </button>
             </div>
           </form>
         </div>
       </section>
-
-      <footer>Sea Canteen • Minimal admin UI</footer>
     </main>
+
+    <footer>Sea Canteen • Admin & User</footer>
 
     <script>
       const API = "/api";
 
-      // small util
+      // Role navigation
+      function enterRole(r) {
+        document.getElementById("landing").classList.add("hidden");
+        document.getElementById("admin-ui").classList.add("hidden");
+        document.getElementById("admin-content").classList.add("hidden");
+        document.getElementById("user-ui").classList.add("hidden");
+
+        if (r === "admin") {
+          document.getElementById("admin-ui").classList.remove("hidden");
+          document.getElementById("admin-content").classList.remove("hidden");
+          showAdminSection("products"); // default
+          fetchProducts();
+          fetchCategoriesForSelect();
+          fetchCustomers();
+        } else if (r === "user") {
+          document.getElementById("user-ui").classList.remove("hidden");
+          fetchProductsForStore();
+        } else {
+          // back to landing
+          document.getElementById("landing").classList.remove("hidden");
+        }
+      }
+
+      /* ---------------- ADMIN: show sections ---------------- */
+      function showAdminSection(s) {
+        [
+          "admin-products",
+          "admin-categories",
+          "admin-customers",
+          "admin-orders",
+          "admin-payments",
+        ].forEach((id) => document.getElementById(id).classList.add("hidden"));
+        if (s === "products")
+          document.getElementById("admin-products").classList.remove("hidden");
+        if (s === "categories")
+          document
+            .getElementById("admin-categories")
+            .classList.remove("hidden");
+        if (s === "customers")
+          document.getElementById("admin-customers").classList.remove("hidden");
+        if (s === "orders")
+          document.getElementById("admin-orders").classList.remove("hidden");
+        if (s === "payments")
+          document.getElementById("admin-payments").classList.remove("hidden");
+      }
+
+      /* ----------------- COMMON UTILS ----------------- */
       function el(tag, attrs = {}, ...children) {
         const e = document.createElement(tag);
         for (const k in attrs) {
-          if (k.startsWith("on")) e.addEventListener(k.slice(2), attrs[k]);
+          if (k === "class") e.className = attrs[k];
+          else if (k.startsWith("on")) e.addEventListener(k.slice(2), attrs[k]);
           else e.setAttribute(k, attrs[k]);
         }
         for (const c of children) {
@@ -413,36 +650,7 @@
         return e;
       }
 
-      /* ---- navigation ---- */
-      function showSection(id) {
-        document
-          .querySelectorAll("main section")
-          .forEach((s) => s.classList.add("hidden"));
-        document.getElementById(id).classList.remove("hidden");
-        // load related data
-        if (id === "products") {
-          fetchProducts();
-          fetchCategoriesForSelect();
-        }
-        if (id === "categories") {
-          fetchCategories();
-        }
-        if (id === "customers") {
-          fetchCustomers();
-        }
-        if (id === "orders") {
-          fetchOrders();
-          fetchCustomersForSelect();
-          fetchProductsForOrder();
-        }
-        if (id === "payments") {
-          fetchPayments();
-          fetchOrders();
-        }
-      }
-      showSection("products");
-
-      /* ----- PRODUCTS ----- */
+      /* ----------------- ADMIN: PRODUCTS ----------------- */
       async function fetchProducts() {
         const res = await fetch(API + "/products");
         const data = await res.json();
@@ -453,10 +661,8 @@
           return;
         }
         const table = el("table");
-        const thead = el("thead");
-        thead.innerHTML =
-          "<tr><th>ID</th><th>Name</th><th>Category</th><th>Price</th><th>Stock</th><th></th></tr>";
-        table.appendChild(thead);
+        table.innerHTML =
+          "<thead><tr><th>ID</th><th>Name</th><th>Category</th><th>Price</th><th>Stock</th><th></th></tr></thead>";
         const tbody = el("tbody");
         data.forEach((p) => {
           const tr = el("tr");
@@ -506,8 +712,6 @@
       document.getElementById("pf").addEventListener("submit", async (e) => {
         e.preventDefault();
         const data = Object.fromEntries(new FormData(e.target).entries());
-        // convert numeric fields
-        if (!data.product_name) return alert("product name required");
         data.price = parseFloat(data.price || 0);
         data.stock = parseInt(data.stock || 0);
         if (data.product_id) {
@@ -518,8 +722,6 @@
             body: JSON.stringify(data),
           });
         } else {
-          // require an id for now - if you prefer auto-increment change DB schema accordingly
-          // still try to POST even if no id (backend accepts product_id null)
           await fetch(API + "/products", {
             method: "POST",
             headers: { "content-type": "application/json" },
@@ -542,6 +744,7 @@
         const res = await fetch(API + "/categories");
         const cats = await res.json();
         const sel = document.getElementById("product-category");
+        if (!sel) return;
         sel.innerHTML = '<option value="">-- none --</option>';
         cats.forEach((c) => {
           const o = el("option", { value: c.category_id }, c.category_name);
@@ -549,7 +752,7 @@
         });
       }
 
-      /* ----- CATEGORIES ----- */
+      /* ----------------- ADMIN: CATEGORIES ----------------- */
       function openCategoryForm() {
         document.getElementById("category-form").classList.remove("hidden");
       }
@@ -610,7 +813,7 @@
         fetchCategoriesForSelect();
       }
 
-      /* ----- CUSTOMERS ----- */
+      /* ----------------- ADMIN: CUSTOMERS ----------------- */
       function openCustomerForm() {
         document.getElementById("customer-form").classList.remove("hidden");
       }
@@ -657,7 +860,7 @@
         c.appendChild(table);
       }
 
-      /* ----- ORDERS ----- */
+      /* ----------------- ADMIN: ORDERS ----------------- */
       function openOrderForm() {
         document.getElementById("order-form").classList.remove("hidden");
       }
@@ -694,14 +897,12 @@
         row.appendChild(price);
         row.appendChild(remove);
         area.appendChild(row);
-        // populate products
         fetchProductsForOrder(prodSelect);
       }
 
       async function fetchProductsForOrder(selectEl) {
         const res = await fetch(API + "/products");
         const data = await res.json();
-        // if selectEl not passed, populate first existing selects
         if (selectEl) {
           selectEl.innerHTML = "";
           data.forEach((p) => {
@@ -720,21 +921,6 @@
             o.textContent = `${p.product_name} (${p.price})`;
             sel.appendChild(o);
           });
-        });
-      }
-
-      async function fetchCustomersForSelect() {
-        const res = await fetch(API + "/customers");
-        const data = await res.json();
-        const sel = document.getElementById("order-customer");
-        sel.innerHTML = "";
-        data.forEach((c) => {
-          const o = document.createElement("option");
-          o.value = c.customer_id;
-          o.textContent = `${c.first_name} ${c.last_name || ""} (${
-            c.customer_id || ""
-          })`;
-          sel.appendChild(o);
         });
       }
 
@@ -787,7 +973,7 @@
         }
         data.forEach((o) => {
           const box = el("div", { class: "card" });
-          box.innerHTML = `<div class="flex-between"><strong>Order ${
+          box.innerHTML = `<div class="row" style="justify-content:space-between"><strong>Order ${
             o.order_id
           }</strong><div class="muted">${o.order_date || ""} • ${
             o.status
@@ -812,7 +998,7 @@
         });
       }
 
-      /* ----- PAYMENTS ----- */
+      /* ----------------- ADMIN: PAYMENTS ----------------- */
       function openPaymentForm() {
         document.getElementById("payment-form").classList.remove("hidden");
       }
@@ -858,6 +1044,233 @@
         table.appendChild(tb);
         c.appendChild(table);
       }
+
+      /* ----------------- USER: product grid & cart ----------------- */
+      let storeProducts = [];
+      let cart = [];
+
+      async function fetchProductsForStore() {
+        const res = await fetch(API + "/products");
+        const data = await res.json();
+        storeProducts = data.filter((p) => p.stock > 0);
+        renderProductGrid();
+      }
+
+      function renderProductGrid() {
+        const grid = document.getElementById("product-grid");
+        grid.innerHTML = "";
+        if (!storeProducts.length) {
+          grid.innerHTML = '<div class="muted">No products available</div>';
+          return;
+        }
+        storeProducts.forEach((p) => {
+          const card = el("div", { class: "product-card" });
+          card.innerHTML = `<div style="font-weight:700">${p.product_name}</div>
+      <div class="muted small">${p.category_name || ""}</div>
+      <div style="margin:8px 0">${p.description || ""}</div>
+      <div class="price">₹ ${p.price || 0}</div>
+      <div class="muted small">Stock: ${p.stock || 0}</div>`;
+          const add = el(
+            "button",
+            { class: "btn", onclick: () => addToCart(p.product_id) },
+            "Add to cart"
+          );
+          card.appendChild(add);
+          grid.appendChild(card);
+        });
+      }
+
+      function addToCart(pid) {
+        const prod = storeProducts.find((x) => x.product_id == pid);
+        if (!prod) return alert("Product not found");
+        const existing = cart.find((c) => c.product_id == pid);
+        if (existing) {
+          if (existing.quantity + 1 > prod.stock)
+            return alert("Not enough stock");
+          existing.quantity += 1;
+        } else
+          cart.push({
+            product_id: pid,
+            product_name: prod.product_name,
+            price: prod.price,
+            quantity: 1,
+          });
+        updateCartUI();
+      }
+
+      function updateCartUI() {
+        document.getElementById("cart-count").textContent = cart.reduce(
+          (s, i) => s + i.quantity,
+          0
+        );
+        const items = document.getElementById("cart-items");
+        if (!items) return;
+        items.innerHTML = "";
+        if (!cart.length)
+          items.innerHTML = '<div class="muted">Cart is empty</div>';
+        cart.forEach((it, idx) => {
+          const row = el("div", { class: "row" });
+          row.innerHTML = `<div style="flex:2">${
+            it.product_name
+          }</div><div style="flex:1">Qty: ${
+            it.quantity
+          }</div><div style="flex:1">₹ ${it.price * it.quantity}</div>`;
+          const rem = el(
+            "button",
+            {
+              onclick: () => {
+                cart.splice(idx, 1);
+                updateCartUI();
+              },
+            },
+            "Remove"
+          );
+          row.appendChild(rem);
+          items.appendChild(row);
+        });
+        document.getElementById("cart-total").textContent = cart
+          .reduce((s, i) => s + i.price * i.quantity, 0)
+          .toFixed(2);
+      }
+
+      /* Cart modal */
+      function openCart() {
+        document.getElementById("cart-modal").classList.remove("hidden");
+        updateCartUI();
+      }
+      function closeCart() {
+        document.getElementById("cart-modal").classList.add("hidden");
+      }
+
+      /* Checkout */
+      function checkout() {
+        if (!cart.length) return alert("Cart empty");
+        closeCart();
+        document.getElementById("checkout-form").classList.remove("hidden");
+        // prefill nothing; user can provide existing customer id
+      }
+
+      /* cancel checkout */
+      function cancelCheckout() {
+        document.getElementById("checkoutf").reset();
+        document.getElementById("checkout-form").classList.add("hidden");
+      }
+
+      /* submit checkout (place order) */
+      document
+        .getElementById("checkoutf")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const data = Object.fromEntries(new FormData(e.target).entries());
+          // If customer_id provided, use it, else create a customer first
+          let customer_id =
+            data.customer_id && data.customer_id.trim()
+              ? parseInt(data.customer_id)
+              : null;
+          if (!customer_id) {
+            // create new customer (only minimal info)
+            const custPayload = {
+              first_name: data.first_name,
+              last_name: data.last_name,
+              email: data.email,
+              phone: data.phone,
+            };
+            const resp = await fetch(API + "/customers", {
+              method: "POST",
+              headers: { "content-type": "application/json" },
+              body: JSON.stringify(custPayload),
+            });
+            // no returned id — assume you manage IDs manually; ask user to provide id in future.
+          }
+          const order_id = Math.floor(Date.now() / 1000);
+          const items = cart.map((c) => ({
+            product_id: c.product_id,
+            quantity: c.quantity,
+            price: c.price,
+          }));
+          const payload = {
+            order_id,
+            customer_id: customer_id || null,
+            status: "Pending",
+            items,
+          };
+          const res = await fetch(API + "/orders", {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+          const resp = await res.json();
+          alert("Order created (id: " + order_id + "). Total: ₹" + resp.total);
+          // prepare payment UI
+          document.getElementById("pay-order-id").textContent = order_id;
+          document.getElementById("pay-amount").textContent = resp.total;
+          document.getElementById("checkout-form").classList.add("hidden");
+          document.getElementById("payment-ui").classList.remove("hidden");
+        });
+
+      /* Payments from user */
+      document
+        .getElementById("payf-user")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const data = Object.fromEntries(new FormData(e.target).entries());
+          // ensure amount and order_id exist
+          data.order_id = parseInt(
+            document.getElementById("pay-order-id").textContent
+          );
+          await fetch(API + "/payments", {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify(data),
+          });
+          alert("Payment recorded. Thank you!");
+          cart = [];
+          updateCartUI();
+          document.getElementById("payment-ui").classList.add("hidden");
+          // refresh store products & admin views
+          fetchProductsForStore();
+          fetchProducts();
+          fetchOrders();
+          fetchPayments();
+        });
+
+      function cancelPayment() {
+        document.getElementById("payment-ui").classList.add("hidden");
+        // user can go back to store
+      }
+
+      /* ----------------- initial load ----------------- */
+      enterRole("landing"); // show landing initially
+
+      // When admin UI is entered, ensure lists are loaded
+      async function fetchAllAdmin() {
+        fetchProducts();
+        fetchCategories();
+        fetchCustomers();
+        fetchOrders();
+        fetchPayments();
+      }
+      // small helper to refresh lists periodically/helpers when switching
+      document.addEventListener("visibilitychange", () => {
+        if (!document.hidden) {
+          // refresh when tab becomes active
+          if (
+            !document.getElementById("landing").classList.contains("hidden")
+          ) {
+            // nothing
+          } else if (
+            !document
+              .getElementById("admin-content")
+              .classList.contains("hidden")
+          ) {
+            fetchAllAdmin();
+          } else if (
+            !document.getElementById("user-ui").classList.contains("hidden")
+          ) {
+            fetchProductsForStore();
+          }
+        }
+      });
     </script>
   </body>
 </html>
