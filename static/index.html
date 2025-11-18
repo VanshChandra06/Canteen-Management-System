@@ -140,6 +140,9 @@
         color: #064e4a;
         font-size: 13px;
       }
+      .error {
+        color: #b00020;
+      }
       @media (max-width: 900px) {
         main {
           flex-direction: column;
@@ -172,8 +175,7 @@
         </div>
         <hr />
         <p class="small muted">
-          Tip: Admin view provides management features. User view is a simple
-          storefront where orders/payments can be created.
+          Some output may take upto 10 seconds to show when updated.
         </p>
       </section>
 
@@ -228,7 +230,6 @@
             <h4 id="product-form-title">Add product</h4>
             <form id="pf">
               <div class="grid-3">
-                <div><label>Product ID</label><input name="product_id" /></div>
                 <div>
                   <label>Name</label><input name="product_name" required />
                 </div>
@@ -280,10 +281,6 @@
             <h4>Add category</h4>
             <form id="cf">
               <div class="row">
-                <div style="flex: 1">
-                  <label>ID</label>
-                  <input name="category_id" />
-                </div>
                 <div style="flex: 2">
                   <label>Name</label>
                   <input name="category_name" required />
@@ -326,14 +323,15 @@
             <h4>Add customer</h4>
             <form id="custf">
               <div class="grid-3">
-                <div><label>ID</label><input name="customer_id" /></div>
                 <div>
                   <label>First name</label><input name="first_name" required />
                 </div>
                 <div><label>Last name</label><input name="last_name" /></div>
                 <div><label>Email</label><input name="email" /></div>
                 <div><label>Phone</label><input name="phone" /></div>
-                <div><label>Address</label><input name="address" /></div>
+                <div style="grid-column: 1 / -1">
+                  <label>Address</label><input name="address" />
+                </div>
               </div>
               <div style="margin-top: 8px" class="row">
                 <button class="btn" type="submit">Save</button>
@@ -366,11 +364,8 @@
             <h4>Create order</h4>
             <form id="of">
               <div class="row">
-                <div style="flex: 1">
-                  <label>Order ID</label><input name="order_id" />
-                </div>
                 <div style="flex: 2">
-                  <label>Customer</label
+                  <label>Customer (select existing)</label
                   ><select name="customer_id" id="order-customer"></select>
                 </div>
                 <div style="flex: 1">
@@ -423,14 +418,8 @@
             <form id="payf">
               <div class="row">
                 <div style="flex: 1">
-                  <label>Payment ID</label><input name="payment_id" />
-                </div>
-                <div style="flex: 1">
-                  <label>Order ID</label><input name="order_id" />
-                </div>
-                <div style="flex: 1">
-                  <label>Amount</label
-                  ><input name="amount" type="number" step="0.01" />
+                  <label>Order (select)</label>
+                  <select name="order_id" id="payment-order"></select>
                 </div>
                 <div style="flex: 1">
                   <label>Method</label>
@@ -439,6 +428,14 @@
                     <option>Card</option>
                     <option>UPI</option>
                     <option>Cash on Delivery</option>
+                  </select>
+                </div>
+                <div style="flex: 1">
+                  <label>Status</label>
+                  <select name="status">
+                    <option>Success</option>
+                    <option>Pending</option>
+                    <option>Failed</option>
                   </select>
                 </div>
               </div>
@@ -514,18 +511,12 @@
           <h4>Checkout</h4>
           <form id="checkoutf">
             <div class="row">
-              <div style="flex: 1">
-                <label>Customer ID (or leave blank to create)</label
-                ><input name="customer_id" />
-              </div>
               <div style="flex: 2">
                 <label>First name</label><input name="first_name" required />
               </div>
               <div style="flex: 2">
                 <label>Last name</label><input name="last_name" />
               </div>
-            </div>
-            <div style="margin-top: 8px" class="row">
               <div style="flex: 2">
                 <label>Email</label><input name="email" />
               </div>
@@ -558,19 +549,12 @@
           <form id="payf-user" style="margin-top: 8px">
             <div class="row">
               <div style="flex: 1">
-                <label>Payment ID</label><input name="payment_id" />
-              </div>
-              <div style="flex: 1">
                 <label>Method</label>
                 <select name="payment_method">
                   <option>Cash</option>
                   <option>Card</option>
                   <option>UPI</option>
                 </select>
-              </div>
-              <div style="flex: 1">
-                <label>Amount</label
-                ><input name="amount" type="number" step="0.01" />
               </div>
             </div>
             <div style="margin-top: 8px" class="row">
@@ -589,7 +573,6 @@
     <script>
       const API = "/api";
 
-      // Role navigation
       function enterRole(r) {
         document.getElementById("landing").classList.add("hidden");
         document.getElementById("admin-ui").classList.add("hidden");
@@ -599,7 +582,7 @@
         if (r === "admin") {
           document.getElementById("admin-ui").classList.remove("hidden");
           document.getElementById("admin-content").classList.remove("hidden");
-          showAdminSection("products"); // default
+          showAdminSection("products");
           fetchProducts();
           fetchCategoriesForSelect();
           fetchCustomers();
@@ -607,12 +590,10 @@
           document.getElementById("user-ui").classList.remove("hidden");
           fetchProductsForStore();
         } else {
-          // back to landing
           document.getElementById("landing").classList.remove("hidden");
         }
       }
 
-      /* ---------------- ADMIN: show sections ---------------- */
       function showAdminSection(s) {
         [
           "admin-products",
@@ -635,7 +616,6 @@
           document.getElementById("admin-payments").classList.remove("hidden");
       }
 
-      /* ----------------- COMMON UTILS ----------------- */
       function el(tag, attrs = {}, ...children) {
         const e = document.createElement(tag);
         for (const k in attrs) {
@@ -732,14 +712,12 @@
         fetchProducts();
       });
 
-      /* delete */
       async function deleteProduct(id) {
         if (!confirm("Delete product " + id + "?")) return;
         await fetch(API + "/products/" + id, { method: "DELETE" });
         fetchProducts();
       }
 
-      /* categories select for product form */
       async function fetchCategoriesForSelect() {
         const res = await fetch(API + "/categories");
         const cats = await res.json();
@@ -1009,7 +987,12 @@
 
       document.getElementById("payf").addEventListener("submit", async (e) => {
         e.preventDefault();
-        const data = Object.fromEntries(new FormData(e.target).entries());
+        const fd = new FormData(e.target);
+        const data = {
+          order_id: fd.get("order_id"),
+          payment_method: fd.get("payment_method"),
+          status: fd.get("status") || "Success",
+        };
         await fetch(API + "/payments", {
           method: "POST",
           headers: { "content-type": "application/json" },
@@ -1045,7 +1028,7 @@
         c.appendChild(table);
       }
 
-      /* ----------------- USER: product grid & cart ----------------- */
+      /* ----------------- USER: product grid ----------------- */
       let storeProducts = [];
       let cart = [];
 
@@ -1066,10 +1049,10 @@
         storeProducts.forEach((p) => {
           const card = el("div", { class: "product-card" });
           card.innerHTML = `<div style="font-weight:700">${p.product_name}</div>
-      <div class="muted small">${p.category_name || ""}</div>
-      <div style="margin:8px 0">${p.description || ""}</div>
-      <div class="price">₹ ${p.price || 0}</div>
-      <div class="muted small">Stock: ${p.stock || 0}</div>`;
+            <div class="muted small">${p.category_name || ""}</div>
+            <div style="margin:8px 0">${p.description || ""}</div>
+            <div class="price">₹ ${p.price || 0}</div>
+            <div class="muted small">Stock: ${p.stock || 0}</div>`;
           const add = el(
             "button",
             { class: "btn", onclick: () => addToCart(p.product_id) },
@@ -1133,7 +1116,6 @@
           .toFixed(2);
       }
 
-      /* Cart modal */
       function openCart() {
         document.getElementById("cart-modal").classList.remove("hidden");
         updateCartUI();
@@ -1142,45 +1124,38 @@
         document.getElementById("cart-modal").classList.add("hidden");
       }
 
-      /* Checkout */
       function checkout() {
         if (!cart.length) return alert("Cart empty");
         closeCart();
         document.getElementById("checkout-form").classList.remove("hidden");
-        // prefill nothing; user can provide existing customer id
       }
 
-      /* cancel checkout */
       function cancelCheckout() {
         document.getElementById("checkoutf").reset();
         document.getElementById("checkout-form").classList.add("hidden");
       }
 
-      /* submit checkout (place order) */
       document
         .getElementById("checkoutf")
         .addEventListener("submit", async (e) => {
           e.preventDefault();
           const data = Object.fromEntries(new FormData(e.target).entries());
-          // If customer_id provided, use it, else create a customer first
           let customer_id =
             data.customer_id && data.customer_id.trim()
               ? parseInt(data.customer_id)
               : null;
           if (!customer_id) {
-            // create new customer (only minimal info)
             const custPayload = {
               first_name: data.first_name,
               last_name: data.last_name,
               email: data.email,
               phone: data.phone,
             };
-            const resp = await fetch(API + "/customers", {
+            await fetch(API + "/customers", {
               method: "POST",
               headers: { "content-type": "application/json" },
               body: JSON.stringify(custPayload),
             });
-            // no returned id — assume you manage IDs manually; ask user to provide id in future.
           }
           const order_id = Math.floor(Date.now() / 1000);
           const items = cart.map((c) => ({
@@ -1201,33 +1176,41 @@
           });
           const resp = await res.json();
           alert("Order created (id: " + order_id + "). Total: ₹" + resp.total);
-          // prepare payment UI
           document.getElementById("pay-order-id").textContent = order_id;
           document.getElementById("pay-amount").textContent = resp.total;
           document.getElementById("checkout-form").classList.add("hidden");
           document.getElementById("payment-ui").classList.remove("hidden");
         });
 
-      /* Payments from user */
+      /* -------- USER PAYMENT (NO AMOUNT, NO PAYMENT ID) -------- */
       document
         .getElementById("payf-user")
         .addEventListener("submit", async (e) => {
           e.preventDefault();
-          const data = Object.fromEntries(new FormData(e.target).entries());
-          // ensure amount and order_id exist
-          data.order_id = parseInt(
+
+          const order_id = parseInt(
             document.getElementById("pay-order-id").textContent
           );
+
+          const payment_method = e.target.payment_method.value;
+
+          const payload = {
+            order_id,
+            payment_method,
+            status: "Success",
+          };
+
           await fetch(API + "/payments", {
             method: "POST",
             headers: { "content-type": "application/json" },
-            body: JSON.stringify(data),
+            body: JSON.stringify(payload),
           });
+
           alert("Payment recorded. Thank you!");
           cart = [];
           updateCartUI();
           document.getElementById("payment-ui").classList.add("hidden");
-          // refresh store products & admin views
+
           fetchProductsForStore();
           fetchProducts();
           fetchOrders();
@@ -1236,13 +1219,10 @@
 
       function cancelPayment() {
         document.getElementById("payment-ui").classList.add("hidden");
-        // user can go back to store
       }
 
-      /* ----------------- initial load ----------------- */
-      enterRole("landing"); // show landing initially
+      enterRole("landing");
 
-      // When admin UI is entered, ensure lists are loaded
       async function fetchAllAdmin() {
         fetchProducts();
         fetchCategories();
@@ -1250,15 +1230,10 @@
         fetchOrders();
         fetchPayments();
       }
-      // small helper to refresh lists periodically/helpers when switching
+
       document.addEventListener("visibilitychange", () => {
         if (!document.hidden) {
-          // refresh when tab becomes active
           if (
-            !document.getElementById("landing").classList.contains("hidden")
-          ) {
-            // nothing
-          } else if (
             !document
               .getElementById("admin-content")
               .classList.contains("hidden")
